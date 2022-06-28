@@ -49,6 +49,9 @@ func main() {
 
 func diggin(root string, word string, excludes []string) {
 
+	thisWord := "(?i)(?<=\s|^|\W)" + word + "(?=\s|$|\W)"
+	regWord, _ := regexp.Compile(thisWord)
+
 	rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$", "^[A-Za-z0-9]*[.]xml$"}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -79,7 +82,8 @@ func diggin(root string, word string, excludes []string) {
 					scanner := bufio.NewScanner(p)
 		
 					for scanner.Scan() {
-						if strings.Contains(scanner.Text(), word) {
+						// if strings.Contains(scanner.Text(), word) {
+						if regWord.MatchString(scanner.Text()) {
 							fmt.Println(path, scanner.Text())
 						} else {
 							continue
