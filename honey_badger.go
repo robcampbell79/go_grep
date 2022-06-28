@@ -49,7 +49,7 @@ func main() {
 
 func diggin(root string, word string, excludes []string) {
 
-	rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$"}
+	rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$", "^[A-Za-z0-9]*[.]xml$"}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
