@@ -89,24 +89,7 @@ func diggin(root string, word string, excludes []string) {
 				match := reg.MatchString(info.Name())
 
 				if match == true {
-					p, err := os.Open(path)
-					if err != nil {
-						fmt.Println("messed up opening file")
-						return nil
-					}
-					scanner := bufio.NewScanner(p)
-		
-					for scanner.Scan() {
-						if strings.Contains(scanner.Text(), word) {
-							fmt.Println(path, scanner.Text())
-						} else {
-							continue
-						}
-					}
-				} else {
-					fmt.Println("should skip: ", info.Name())
-					return filepath.SkipDir
-				}
+					break
 			}
 
 			// if skip == true {
