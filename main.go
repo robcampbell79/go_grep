@@ -2,7 +2,6 @@ package main
 
 import(
 	"fmt"
-	//"io/ioutil"
 	"bufio"
 	"strings"
 	"os"
@@ -12,10 +11,7 @@ import(
 
 func main() {
 
-	// root := "C:/Users/robcampbell/crow_engine"
-
 	var exclude []string
-	var extensions []string
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -48,53 +44,18 @@ func main() {
 		}
 	}
 
-	fmt.Println("Extensions I should exclude:")
-
-	for {
-		scanner.Scan()
-
-		text := scanner.Text()
-
-		if text == "end" {
-			if len(extensions) == 0 {
-				extensions = append(extensions, "none")
-			}
-			break
-		} else {
-			extensions = append(extensions, text)
-		}
-	}
-
-	diggin(root, word, exclude, extensions)
-	// testFirst(root, word, exclude)
+	diggin(root, word, exclude)
 }
 
-func testFirst(root string, word string, exclude []string) {
-	fmt.Println("Root is: ", root)
-	fmt.Println("Word is: ", word)
-	for _, v := range exclude {
-		fmt.Println("Exclude: ", v)
-	}
-}
+func diggin(root string, word string, excludes []string) {
 
-func diggin(root string, word string, excludes []string, extensions []string) {
-
-	var skip bool = false
-
-	isJava := regexp.Compile("[.]java$")
-	isCSharp := regexp.Compile("[.]cs$")
-	isPhp := regexp.Compile("[.]php$")
-	isHtml := regexp.Compile("[.]html$")
+	rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]go$"}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
 			return nil
 		}
-
-		// if info.IsDir() && info.Name() == ".git" {
-		// 	return filepath.SkipDir
-		// }
 		
 		if info.IsDir() {
 			for _, dirs := range excludes {
@@ -105,35 +66,34 @@ func diggin(root string, word string, excludes []string, extensions []string) {
 		}
 
 		if !info.IsDir() {
-			for _, exts := range extensions {
-				if info.Name() == exts {
-					skip = true
-				}
-			}
+			for i := 0; i < len(rgx); i++ {
+				reg, _ := regexp.Compile(rgx[i])
+				match := reg.MatchString(info.Name())
 
-			if skip == true {
-				fmt.Println("should skip: ", info.Name())
-				return filepath.SkipDir
-			} else {
-				p, err := os.Open(path)
-				if err != nil {
-					fmt.Println("messed up opening file")
-					return nil
-				}
-				scanner := bufio.NewScanner(p)
-	
-				for scanner.Scan() {
-					if strings.Contains(scanner.Text(), word) {
-						fmt.Println(path, scanner.Text())
-					} else {
-						continue
+				if match == true {
+					p, err := os.Open(path)
+					if err != nil {
+						fmt.Println("messed up opening file")
+						return nil
 					}
+					scanner := bufio.NewScanner(p)
+		
+					for scanner.Scan() {
+						if strings.Contains(scanner.Text(), word) {
+							fmt.Println(path, scanner.Text())
+						} else {
+							continue
+						}
+					}
+				} else {
+					continue
 				}
 			}
 		}
 
 		return nil
 	})
+
 	if err != nil {
 		fmt.Println(err)
 	}
