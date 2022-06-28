@@ -49,8 +49,8 @@ func main() {
 
 func diggin(root string, word string, excludes []string) {
 
-	thisWord := "(?i)(?<=\s|^|\W)" + word + "(?=\s|$|\W)"
-	regWord, _ := regexp.Compile(thisWord)
+	// thisWord := "(?i)(?<=\\s|^|\\W)" + word + "(?=\\s|$|\\W)"
+	// regWord, _ := regexp.Compile(thisWord)
 
 	rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$", "^[A-Za-z0-9]*[.]xml$"}
 
@@ -83,7 +83,7 @@ func diggin(root string, word string, excludes []string) {
 		
 					for scanner.Scan() {
 						// if strings.Contains(scanner.Text(), word) {
-						if regWord.MatchString(scanner.Text()) {
+						if strings.EqualFold(scanner.Text(), word) == true {
 							fmt.Println(path, scanner.Text())
 						} else {
 							continue
