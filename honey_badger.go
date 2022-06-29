@@ -3,7 +3,7 @@ package main
 import(
 	"fmt"
 	"bufio"
-	"strings"
+	//"strings"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -82,8 +82,11 @@ func diggin(root string, word string, excludes []string) {
 					scanner := bufio.NewScanner(p)
 		
 					for scanner.Scan() {
+						thisWord := "(?i)(?<=\\s|^|\\W)" + word + "(?=\\s|$|\\W)"
+						regWord, _ := regexp.Compile(thisWord)
 						// if strings.Contains(scanner.Text(), word) {
-						if strings.EqualFold(scanner.Text(), word) == true {
+						// if strings.EqualFold(scanner.Text(), word) == true {
+						if regWord.MatchString(scanner.Text(), word) == true {
 							fmt.Println(path, scanner.Text())
 						} else {
 							continue
