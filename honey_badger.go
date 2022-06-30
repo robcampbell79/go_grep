@@ -3,15 +3,37 @@ package main
 import(
 	"fmt"
 	"bufio"
-	//"strings"
 	"os"
 	"path/filepath"
 	"regexp"
+	"encoding/json"
+	"io/ioutil"
+	"log"
 )
 
-func main() {
+type Exts struct {
+	Extarr	[]Extensions	`json:"exts"`
+}
 
-	var exclude []string
+type Extensions struct {
+	Ext		string	`json:"ext"`
+	Skip	string	`json:"skip"`
+}
+
+type Dirs struct {
+	Dirarr	[]Directories	`json:"dirs"`
+}
+
+type Directories struct {
+	Dir		string	`json:"dir"`
+	Skip	string	`json:"skip"`
+}
+
+type Testing struct {
+	Exts	map[string]string
+}
+
+func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -27,32 +49,99 @@ func main() {
 
 	word := scanner.Text()
 
-	fmt.Println("Directories I should exclude:")
+	diggin(root, word)
+	// testFirst(root, word)
+}
 
-	for {
-		scanner.Scan()
+func testFirst(root string, word string) {
+	configJson, err1 := ioutil.ReadFile("excludes.json") 
+	if err1 != nil {
+		fmt.Println("error reading json: ", err1)
+	}
 
-		text := scanner.Text()
+	var exts Exts
+	// exts := map[string]string{}
 
-		if text == "end" {
-			if len(exclude) == 0 {
-				exclude = append(exclude, "none")
-			}
-			break
-		} else {
-			exclude = append(exclude, text)
+	err2 := json.Unmarshal(configJson, &exts)
+	if err2 != nil {
+		fmt.Println("error unmarshalling json: ", err2)
+	}
+
+	var dirs Dirs
+
+	err3 := json.Unmarshal(configJson, &dirs)
+	if err3 != nil {
+		fmt.Println("error unmarshalling json: ", err3)
+	}
+
+	log.Printf("ext %s\n", exts)
+	log.Printf("dir %s\n",dirs)
+
+	fmt.Println(len(exts.Extarr))
+
+	var rgx []string
+
+	for i := 0; i < len(exts.Extarr); i++ {
+		if exts.Extarr[i].Skip == "y" {
+			rgx = append(rgx, "^[A-Za-z0-9]*[.]"+ exts.Extarr[i].Ext+"$")
 		}
 	}
 
-	diggin(root, word, exclude)
+	for _, val := range rgx {
+		fmt.Println(val)
+	}
+	
 }
 
-func diggin(root string, word string, excludes []string) {
+func diggin(root string, word string) {
 
-	// thisWord := "(?i)(?<=\\s|^|\\W)" + word + "(?=\\s|$|\\W)"
-	// regWord, _ := regexp.Compile(thisWord)
+	fmt.Println("I'm diggin a hole")
 
-	rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$", "^[A-Za-z0-9]*[.]xml$"}
+	configJson, err1 := ioutil.ReadFile("excludes.json") 
+	if err1 != nil {
+		fmt.Println("error reading json: ", err1)
+	}
+
+	var exts Exts
+
+	err2 := json.Unmarshal(configJson, &exts)
+	if err2 != nil {
+		fmt.Println("error unmarshalling json: ", err2)
+	}
+
+	var dirs Dirs
+
+	err3 := json.Unmarshal(configJson, &dirs)
+	if err3 != nil {
+		fmt.Println("error unmarshalling json: ", err3)
+	}
+
+	thisWord := "(?i)" + word
+	regWord, err4 := regexp.Compile(thisWord)
+	if err4 != nil {
+		fmt.Println(err4)
+	}
+
+	// rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$", "^[A-Za-z0-9]*[.]xml$"}
+	var rgx []string
+
+	for i := 0; i < len(exts.Extarr); i++ {
+		if exts.Extarr[i].Skip == "y" {
+			rgx = append(rgx, "^[A-Za-z0-9]*[.]"+ exts.Extarr[i].Ext+"$")
+		}
+	}
+
+	var drx []string
+
+	for i := 0; i < len(dirs.Dirarr); i++ {
+		if dirs.Dirarr[i].Skip == "y" {
+			drx = append(drx, dirs.Dirarr[i].Dir)
+		}
+	}
+
+	for _, val := range rgx {
+		fmt.Println("rgx: ", val)
+	}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -61,7 +150,7 @@ func diggin(root string, word string, excludes []string) {
 		}
 		
 		if info.IsDir() {
-			for _, dirs := range excludes {
+			for _, dirs := range drx {
 				if info.Name() == dirs {
 					return filepath.SkipDir
 				}
@@ -82,11 +171,7 @@ func diggin(root string, word string, excludes []string) {
 					scanner := bufio.NewScanner(p)
 		
 					for scanner.Scan() {
-						thisWord := "(?i)(?<=\\s|^|\\W)" + word + "(?=\\s|$|\\W)"
-						regWord, _ := regexp.Compile(thisWord)
-						// if strings.Contains(scanner.Text(), word) {
-						// if strings.EqualFold(scanner.Text(), word) == true {
-						if regWord.MatchString(scanner.Text(), word) == true {
+						if regWord.MatchString(scanner.Text()) == true {
 							fmt.Println(path, scanner.Text())
 						} else {
 							continue
