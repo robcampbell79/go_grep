@@ -96,7 +96,8 @@ func diggin(root string, word string) {
 
 	var skip bool = false
 
-	fmt.Println("I'm diggin a hole")
+	fmt.Println("I am a dwarf and I'm digging a hole")
+	fmt.Println("Diggy diggy hole, digging a hole")
 
 	configJson, err1 := ioutil.ReadFile("excludes.json") 
 	if err1 != nil {
