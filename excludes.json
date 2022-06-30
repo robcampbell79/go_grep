@@ -1,0 +1,50 @@
+{
+    "exts": [
+        {
+            "ext": "pdf",
+            "skip": "y"
+        },
+        {
+            "ext": "txt",
+            "skip": "y"
+        },
+        {
+            "ext": "java",
+            "skip": "n"
+        },
+        {
+            "ext": "html",
+            "skip": "n"
+        },
+        {
+            "ext": "cs",
+            "skip": "n"
+        },
+        {
+            "ext": "php",
+            "skip": "n"
+        },
+        {
+            "ext": "go",
+            "skip": "n"
+        },
+        {
+            "ext": "xml",
+            "skip": "n"
+        },
+        {
+            "ext": "dll",
+            "skip": "y"
+        },
+        {
+            "ext": "css",
+            "skip": "y"
+        }
+    ],
+    "dirs": [
+        {
+            "dir": ".git",
+            "skip": "y"
+        }
+    ]
+}
