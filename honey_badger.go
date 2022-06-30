@@ -60,7 +60,6 @@ func testFirst(root string, word string) {
 	}
 
 	var exts Exts
-	// exts := map[string]string{}
 
 	err2 := json.Unmarshal(configJson, &exts)
 	if err2 != nil {
@@ -95,6 +94,8 @@ func testFirst(root string, word string) {
 
 func diggin(root string, word string) {
 
+	var skip bool = false
+
 	fmt.Println("I'm diggin a hole")
 
 	configJson, err1 := ioutil.ReadFile("excludes.json") 
@@ -122,7 +123,6 @@ func diggin(root string, word string) {
 		fmt.Println(err4)
 	}
 
-	// rgx := []string{"^[A-Za-z0-9]*[.]java$", "^[A-Za-z0-9]*[.]cs$", "^[A-Za-z0-9]*[.]php$", "^[A-Za-z0-9]*[.]html$", "^[A-Za-z0-9]*[.]cfm$", "^[A-Za-z0-9]*[.]js$", "^[A-Za-z0-9]*[.]xml$"}
 	var rgx []string
 
 	for i := 0; i < len(exts.Extarr); i++ {
@@ -137,10 +137,6 @@ func diggin(root string, word string) {
 		if dirs.Dirarr[i].Skip == "y" {
 			drx = append(drx, dirs.Dirarr[i].Dir)
 		}
-	}
-
-	for _, val := range rgx {
-		fmt.Println("rgx: ", val)
 	}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -163,12 +159,25 @@ func diggin(root string, word string) {
 				match := reg.MatchString(info.Name())
 
 				if match == true {
-					p, err := os.Open(path)
+					skip = true
+					break
+				} else {
+					skip = false
+					continue
+				}
+
+
+			}
+			
+			if skip == false {
+				p, err := os.Open(path)
 					if err != nil {
 						fmt.Println("messed up opening file")
 						return nil
 					}
 					scanner := bufio.NewScanner(p)
+
+					defer p.Close()
 		
 					for scanner.Scan() {
 						if regWord.MatchString(scanner.Text()) == true {
@@ -177,10 +186,8 @@ func diggin(root string, word string) {
 							continue
 						}
 					}
-				} else {
-					continue
-				}
 			}
+
 		}
 
 		return nil

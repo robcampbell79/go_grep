@@ -35,6 +35,10 @@
         {
             "ext": "dll",
             "skip": "y"
+        },
+        {
+            "ext": "css",
+            "skip": "y"
         }
     ],
     "dirs": [
